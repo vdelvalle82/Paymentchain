@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 /**
  *
- * @author sotobotero
+ * @author Virginia del Valle
  */
 @RestController
 @RequestMapping("/customer")
@@ -38,27 +38,14 @@ public class CustomerRestController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<?> get(@PathVariable long id) {
-         Optional<Customer> customer = customerRepository.findById(id);
-        if (customer.isPresent()) {
-            return new ResponseEntity<>(customer.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public Customer get(@PathVariable long id) {
+        return customerRepository.findById(id).get();
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<?> put(@PathVariable long id, @RequestBody Customer input) {
-         Optional<Customer> optionalcustomer = customerRepository.findById(id);
-        if (optionalcustomer.isPresent()) {
-            Customer newcustomer = optionalcustomer.get();
-            newcustomer.setName(input.getName());
-            newcustomer.setPhone(input.getPhone());
-             Customer save = customerRepository.save(newcustomer);
-          return new ResponseEntity<>(save, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+         Customer save = customerRepository.save(input);
+         return ResponseEntity.ok(save);
     }
     
     @PostMapping
@@ -69,8 +56,11 @@ public class CustomerRestController {
     
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
-         customerRepository.deleteById(id);
-         return new ResponseEntity<>(HttpStatus.OK);
+    	 Optional<Customer> findById = customerRepository.findById(id);
+    	 if(findById.get() != null) {
+    		 customerRepository.delete(findById.get());
+    	 }    
+         return ResponseEntity.ok().build();
     }
     
 }
