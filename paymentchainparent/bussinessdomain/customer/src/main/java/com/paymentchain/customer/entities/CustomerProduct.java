@@ -14,7 +14,11 @@ import jakarta.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
-
+/**
+ * Clase de asociación entre un cliente(Customer) y un product (product)
+ * @author Virginia
+ *
+ */
 
 @Data
 @Entity
@@ -25,7 +29,7 @@ public class CustomerProduct {
 	private long id;
 	private long productId;
 	
-	@Transient
+	@Transient // se usa para indicar que no se va a guardar en la bbdd
 	private String productName;
 
     @JsonIgnore
