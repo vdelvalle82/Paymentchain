@@ -1,6 +1,0 @@
-com\paymentchain\transacciones\entities\StatusEnum.class
-com\paymentchain\transacciones\entities\ChannelEnum.class
-com\paymentchain\transacciones\entities\Transaccion.class
-com\paymentchain\transacciones\controller\TransaccionRestController.class
-com\paymentchain\transacciones\TransaccionApplication.class
-com\paymentchain\transacciones\respository\TransaccionRepository.class
