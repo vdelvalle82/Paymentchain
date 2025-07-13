@@ -59,12 +59,10 @@ public class CustomerRestController {
     HttpClient httpClient = HttpClient.create()
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
             .option(ChannelOption.SO_KEEPALIVE, true)
-            .option(EpollChannelOption.TCP_KEEPIDLE, 300)
-            .option(EpollChannelOption.TCP_KEEPINTVL, 60)  
             .responseTimeout(Duration.ofSeconds(1))
             .doOnConnected(connection -> {
-                connection.addHandlerLast(new ReadTimeoutHandler(5));   // 5 segundos timeout lectura
-                connection.addHandlerLast(new WriteTimeoutHandler(5));  // 5 segundos timeout escritura
+                connection.addHandlerLast(new ReadTimeoutHandler(5));
+                connection.addHandlerLast(new WriteTimeoutHandler(5));
             });
        
      
@@ -75,7 +73,7 @@ public class CustomerRestController {
      * @return
      */
     private String getProductName(long id) {
-        WebClient build = webClientBuilder.clientConnector(new ReactorClientHttpConnector(httpClient))
+        WebClient build = webClientBuilder.clientConnector(new ReactorClientHttpConnector())
                 .baseUrl("http://localhost:8083/product")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultUriVariables(Collections.singletonMap("url", "http://localhost:8083/product"))
@@ -86,6 +84,21 @@ public class CustomerRestController {
                 .block();
         String name = block.get("name").asText();
         return name;
+    }
+    
+    private List<?> getTransactions(String iban) {
+    	 WebClient build = webClientBuilder.clientConnector(new ReactorClientHttpConnector(httpClient))
+    	            .baseUrl("http://localhost:8082/transaction")
+    	            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+    	            .defaultUriVariables(Collections.singletonMap("url", "http://localhost:8082/transaction"))
+    	            .build();
+    	    //en queryparam enviamos el nº de ivan del cliente para que nos devuelva el listado de transaciones
+    	    List<?> transactions = build.method(HttpMethod.GET).uri(uriBuilder-> uriBuilder
+    	    		.path("/customer/transactions")
+    	    		.queryParam("ibanAccount", iban) 
+    	    		.build())
+    	    		.retrieve().bodyToFlux(Object.class).collectList().block();
+    	    return transactions;
     }
     
     @GetMapping()
@@ -108,13 +121,20 @@ public class CustomerRestController {
      * @return
      */
     @GetMapping("/full")
-    public Customer getByCode(@RequestParam String code) {
+    public Customer getByCode(@RequestParam("code") String code) {
     	Customer customer = this.customerRepository.findBycode(code);
 		List<CustomerProduct> products = customer.getProducts();
 		products.forEach(x->{
 			String productName = getProductName(x.getId());
 			x.setProductName(productName);
 		});
+		
+		//busca todas las transacciones y se las asigna a customer mediante setTransactions
+		//el microservicios customer actua como clientes del microservicios productos para obtener el nombre
+		//de cada producto y actua como cliente de transacciones para obtener todas las transacciones que pertenecen 
+		//a un mismo nº de cuenta
+		List<?> transactions = getTransactions(customer.getIban());
+		customer.setTransactions(transactions);
 		return customer;
     }
     

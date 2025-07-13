@@ -38,6 +38,7 @@ public class Customer {
    @OneToMany(fetch = FetchType.LAZY, mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
    private List<CustomerProduct> products;
 
+   //transiet se añade para no guardar en la bbdd, sino que vamos a transportar la información de un lugar a otro
    @Transient
    private List<?> transactions;
    
