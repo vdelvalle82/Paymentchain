@@ -1,0 +1,21 @@
+# Ignora carpetas de compilación de Maven
+**/target/
+**/build/
+
+# Archivos de log
+*.log
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Configuración de IDEs
+*.iml
+.idea/
+.vscode/
+*.class
+*.jar
+*.war
+
+# Resultados de pruebas
+surefire-reports/

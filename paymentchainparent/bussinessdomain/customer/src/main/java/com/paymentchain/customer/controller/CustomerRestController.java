@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -100,6 +101,17 @@ public class CustomerRestController {
     	    		.retrieve().bodyToFlux(Object.class).collectList().block();
     	    return transactions;
     }
+    
+    //para acceder a las propiedades del application.properties
+    @Autowired
+    private Environment env;
+    
+    //método de control que recupera el entorno en el que vamos a trabajar
+    @GetMapping("/check")
+    public String check() {
+    	return "Hello your property value is: " + env.getProperty("custom.activeprofileName");
+    }
+    
     
     @GetMapping()
     public List<Customer> list() {
